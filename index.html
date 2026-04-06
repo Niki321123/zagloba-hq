@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Brainrot World Conquest — HQ</title>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Space+Mono:wght@400;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #08090d;
+  --surface: #111318;
+  --surface2: #181b23;
+  --surface3: #1f222d;
+  --accent: #ff4d6d;
+  --accent2: #8b5cf6;
+  --accent3: #10b981;
+  --accent4: #f59e0b;
+  --accent5: #3b82f6;
+  --text: #e4e2f0;
+  --text-dim: #6e6d82;
+  --text-mid: #9b99b0;
+  --border: #232538;
+  --border-light: #2e3048;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: 'Nunito', sans-serif; line-height: 1.7;
+  overflow-x: hidden; min-height: 100vh;
+}
+
+/* LAYOUT */
+.app { display: flex; min-height: 100vh; }
+.sidebar {
+  width: 240px; background: var(--surface); border-right: 1px solid var(--border);
+  padding: 24px 0; position: fixed; top: 0; left: 0; bottom: 0; overflow-y: auto;
+  z-index: 50;
+}
+.main { margin-left: 240px; flex: 1; padding: 32px 40px 80px; max-width: 1100px; }
+
+/* SIDEBAR */
+.logo { padding: 0 20px 24px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+.logo h1 {
+  font-family: 'Bangers', cursive; font-size: 22px; letter-spacing: 1px;
+  background: linear-gradient(135deg, #ff4d6d, #8b5cf6);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.logo .version {
+  font-family: 'Space Mono', monospace; font-size: 9px;
+  color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase;
+}
+
+.nav-group { margin-bottom: 20px; }
+.nav-group-title {
+  font-family: 'Space Mono', monospace; font-size: 9px;
+  letter-spacing: 2.5px; text-transform: uppercase; color: var(--text-dim);
+  padding: 0 20px; margin-bottom: 6px;
+}
+.nav-link {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 20px; color: var(--text-mid); text-decoration: none;
+  font-size: 13px; font-weight: 600; transition: all 0.15s; cursor: pointer;
+  border-left: 3px solid transparent;
+}
+.nav-link:hover { color: var(--text); background: rgba(139,92,246,0.06); }
+.nav-link.active {
+  color: var(--accent); background: rgba(255,77,109,0.06);
+  border-left-color: var(--accent);
+}
+.nav-icon { font-size: 16px; width: 22px; text-align: center; }
+
+.sidebar-footer {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 16px 20px; border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+.status-bar {
+  display: flex; align-items: center; gap: 8px;
+  font-family: 'Space Mono', monospace; font-size: 10px; color: var(--text-dim);
+}
+.status-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent3); box-shadow: 0 0 6px var(--accent3);
+}
+
+/* PAGE HEADER */
+.page-header { margin-bottom: 36px; }
+.page-header h2 {
+  font-family: 'Bangers', cursive; font-size: 36px;
+  letter-spacing: 1px; color: #fff; margin-bottom: 4px;
+}
+.page-header p { font-size: 14px; color: var(--text-dim); }
+
+/* STAT CARDS */
+.stats-row {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 32px;
+}
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+  padding: 18px 20px; position: relative; overflow: hidden;
+}
+.stat-card::after {
+  content: ''; position: absolute; top: 0; right: 0;
+  width: 60px; height: 60px; border-radius: 50%;
+  filter: blur(30px); opacity: 0.15;
+}
+.stat-card:nth-child(1)::after { background: var(--accent); }
+.stat-card:nth-child(2)::after { background: var(--accent2); }
+.stat-card:nth-child(3)::after { background: var(--accent3); }
+.stat-card:nth-child(4)::after { background: var(--accent4); }
+.stat-label {
+  font-family: 'Space Mono', monospace; font-size: 9px;
+  letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 4px;
+}
+.stat-value { font-size: 28px; font-weight: 900; color: #fff; line-height: 1.2; }
+.stat-sub { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+
+/* SECTIONS */
+.section { display: none; }
+.section.active { display: block; }
+
+/* CONTINENT MAP */
+.continent-progress {
+  display: flex; flex-direction: column; gap: 0;
+}
+.cont-row {
+  display: flex; align-items: stretch; gap: 12px;
+}
+.cont-connector {
+  width: 24px; display: flex; flex-direction: column; align-items: center;
+  padding: 0;
+}
+.cont-dot {
+  width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0;
+  border: 3px solid var(--bg);
+}
+.cont-line { width: 2px; flex: 1; }
+.cont-dot.t1 { background: var(--accent4); box-shadow: 0 0 8px var(--accent4); }
+.cont-dot.t2 { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+.cont-dot.t3 { background: var(--accent5); box-shadow: 0 0 8px var(--accent5); }
+.cont-dot.t4 { background: var(--accent3); box-shadow: 0 0 8px var(--accent3); }
+.cont-dot.t5 { background: var(--accent2); box-shadow: 0 0 8px var(--accent2); }
+.cont-line.t1 { background: var(--accent4); opacity: 0.3; }
+.cont-line.t2 { background: var(--accent); opacity: 0.3; }
+.cont-line.t3 { background: var(--accent5); opacity: 0.3; }
+.cont-line.t4 { background: var(--accent3); opacity: 0.3; }
+.cont-line.t5 { background: var(--accent2); opacity: 0.3; }
+
+.cont-card {
+  flex: 1; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 20px 22px; margin-bottom: 8px;
+  transition: border-color 0.2s;
+}
+.cont-card:hover { border-color: var(--border-light); }
+.cont-card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.cont-card-title { display: flex; align-items: center; gap: 10px; }
+.cont-card-title span:first-child { font-size: 24px; }
+.cont-card-title strong { font-size: 16px; font-weight: 800; color: #fff; }
+.cont-badge {
+  font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 1.5px;
+  text-transform: uppercase; padding: 3px 8px; border-radius: 4px; font-weight: 700;
+}
+.cont-badge.t1 { background: rgba(245,158,11,0.12); color: var(--accent4); }
+.cont-badge.t2 { background: rgba(255,77,109,0.12); color: var(--accent); }
+.cont-badge.t3 { background: rgba(59,130,246,0.12); color: var(--accent5); }
+.cont-badge.t4 { background: rgba(16,185,129,0.12); color: var(--accent3); }
+.cont-badge.t5 { background: rgba(139,92,246,0.12); color: var(--accent2); }
+.cont-meta {
+  display: flex; gap: 16px; font-size: 12px; color: var(--text-dim);
+  font-family: 'Space Mono', monospace; margin-bottom: 8px;
+}
+.cont-desc { font-size: 13px; color: var(--text-mid); margin-bottom: 10px; }
+.tags { display: flex; flex-wrap: wrap; gap: 5px; }
+.tag {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 5px; padding: 2px 8px; font-size: 10px; font-weight: 700; color: var(--text);
+}
+
+/* BRANCH */
+.branch-split {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+  margin: 8px 0 8px 36px;
+}
+.branch-label {
+  margin: 8px 0 4px 36px; font-family: 'Space Mono', monospace;
+  font-size: 10px; letter-spacing: 2px; color: var(--text-dim); text-transform: uppercase;
+}
+
+/* BASE SYSTEM */
+.base-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px; margin-top: 16px;
+}
+.base-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 16px; text-align: center;
+}
+.base-card .lvl { font-family: 'Bangers', cursive; font-size: 32px; color: var(--accent4); }
+.base-card .name { font-weight: 800; font-size: 13px; color: #fff; margin: 4px 0; }
+.base-card .desc { font-size: 11px; color: var(--text-dim); line-height: 1.5; }
+.base-card .unlock {
+  font-family: 'Space Mono', monospace; font-size: 9px;
+  color: var(--accent3); margin-top: 6px; letter-spacing: 1px;
+}
+
+/* PET RARITY */
+.rarity-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px; margin-top: 16px;
+}
+.rarity-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 16px; text-align: center;
+}
+.rarity-icon { font-size: 24px; margin-bottom: 6px; }
+.rarity-name { font-weight: 800; font-size: 14px; color: #fff; }
+.rarity-chance { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--text-dim); }
+.rarity-mult {
+  font-family: 'Space Mono', monospace; font-size: 13px;
+  color: var(--accent3); font-weight: 700; margin-top: 4px;
+}
+
+/* MONEY TABLE */
+.money-table { width: 100%; border-collapse: separate; border-spacing: 0 5px; margin-top: 16px; }
+.money-table th {
+  font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--text-dim); text-align: left; padding: 6px 12px;
+}
+.money-table td { background: var(--surface); padding: 11px 12px; font-size: 13px; }
+.money-table tr td:first-child { border-radius: 8px 0 0 8px; }
+.money-table tr td:last-child { border-radius: 0 8px 8px 0; }
+.price { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 12px; color: var(--accent3); }
+.gp-tag { font-family: 'Space Mono', monospace; font-size: 9px; background: rgba(139,92,246,0.15); color: var(--accent2); padding: 2px 6px; border-radius: 3px; }
+.dp-tag { font-family: 'Space Mono', monospace; font-size: 9px; background: rgba(255,77,109,0.15); color: var(--accent); padding: 2px 6px; border-radius: 3px; }
+
+/* TASK LIST */
+.task-section { margin-bottom: 28px; }
+.task-section-title {
+  font-weight: 800; font-size: 15px; color: #fff; margin-bottom: 10px;
+  display: flex; align-items: center; gap: 8px;
+}
+.task-section-title .phase-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+}
+.task-list { list-style: none; }
+.task-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 14px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; margin-bottom: 5px; font-size: 13px;
+  transition: border-color 0.15s;
+}
+.task-item:hover { border-color: var(--border-light); }
+.task-check {
+  width: 18px; height: 18px; border: 2px solid var(--border-light);
+  border-radius: 4px; flex-shrink: 0; margin-top: 1px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; font-size: 11px; color: transparent;
+}
+.task-check:hover { border-color: var(--accent3); }
+.task-check.done { background: var(--accent3); border-color: var(--accent3); color: #fff; }
+.task-text { flex: 1; }
+.task-text.done-text { text-decoration: line-through; color: var(--text-dim); }
+.task-priority {
+  font-family: 'Space Mono', monospace; font-size: 9px; padding: 1px 6px;
+  border-radius: 3px; flex-shrink: 0; margin-top: 2px;
+}
+.priority-high { background: rgba(255,77,109,0.15); color: var(--accent); }
+.priority-mid { background: rgba(245,158,11,0.15); color: var(--accent4); }
+.priority-low { background: rgba(16,185,129,0.15); color: var(--accent3); }
+
+/* NOTES */
+.notes-area {
+  width: 100%; min-height: 200px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: 16px; font-family: 'Nunito', sans-serif; font-size: 14px;
+  color: var(--text); resize: vertical; outline: none;
+  transition: border-color 0.2s; line-height: 1.7;
+}
+.notes-area:focus { border-color: var(--accent2); }
+
+/* RETENTION CARDS */
+.ret-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px; margin-top: 16px;
+}
+.ret-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 18px;
+}
+.ret-card .icon { font-size: 22px; margin-bottom: 8px; }
+.ret-card h4 { font-weight: 800; font-size: 14px; color: #fff; margin-bottom: 4px; }
+.ret-card p { font-size: 12px; color: var(--text-dim); line-height: 1.6; }
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  .sidebar { display: none; }
+  .main { margin-left: 0; padding: 20px 16px 60px; }
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .branch-split { grid-template-columns: 1fr; }
+  .rarity-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">
+      <h1>BWC</h1>
+      <div class="version">Brainrot World Conquest</div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Przegląd</div>
+      <a class="nav-link active" onclick="showSection('dashboard')">
+        <span class="nav-icon">📊</span> Dashboard
+      </a>
+      <a class="nav-link" onclick="showSection('tasks')">
+        <span class="nav-icon">✅</span> Zadania
+      </a>
+      <a class="nav-link" onclick="showSection('notes')">
+        <span class="nav-icon">📝</span> Notatki
+      </a>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-group-title">Design</div>
+      <a class="nav-link" onclick="showSection('world')">
+        <span class="nav-icon">🌍</span> Świat
+      </a>
+      <a class="nav-link" onclick="showSection('base')">
+        <span class="nav-icon">🏗️</span> Baza
+      </a>
+      <a class="nav-link" onclick="showSection('brainrots')">
+        <span class="nav-icon">🧠</span> Brainroty & Pety
+      </a>
+      <a class="nav-link" onclick="showSection('money')">
+        <span class="nav-icon">💰</span> Monetyzacja
+      </a>
+      <a class="nav-link" onclick="showSection('retention')">
+        <span class="nav-icon">🔄</span> Retencja
+      </a>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="status-bar">
+        <span class="status-dot"></span>
+        <span>Faza 1 — W trakcie</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <div class="section active" id="dashboard">
+      <div class="page-header">
+        <h2>Dashboard</h2>
+        <p>Centrum dowodzenia projektu Brainrot World Conquest</p>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Faza</div>
+          <div class="stat-value">1 / 4</div>
+          <div class="stat-sub">Rdzeń — Afryka + klikanie</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Kontynenty</div>
+          <div class="stat-value">0 / 6</div>
+          <div class="stat-sub">gotowych do gry</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Zadania</div>
+          <div class="stat-value" id="task-counter">0 / 24</div>
+          <div class="stat-sub">ukończonych</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Game Passy</div>
+          <div class="stat-value">5</div>
+          <div class="stat-sub">+ 4 Dev Products</div>
+        </div>
+      </div>
+
+      <!-- Quick overview of phases -->
+      <h3 style="font-weight:800; font-size:16px; color:#fff; margin-bottom:12px;">Harmonogram</h3>
+      <div style="display:grid; grid-template-columns: repeat(4,1fr); gap:10px; margin-bottom:32px;">
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px; border-top: 3px solid var(--accent);">
+          <div style="font-family:'Space Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--accent); text-transform:uppercase; margin-bottom:4px;">Faza 1 — aktywna</div>
+          <div style="font-weight:800; font-size:14px; color:#fff; margin-bottom:4px;">Rdzeń</div>
+          <div style="font-size:12px; color:var(--text-dim);">Afryka, klikanie, baza lvl 1-3, DataStore</div>
+          <div style="font-family:'Space Mono',monospace; font-size:10px; color:var(--text-dim); margin-top:6px;">Tydzień 1–3</div>
+        </div>
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px; opacity:0.6;">
+          <div style="font-family:'Space Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--accent2); text-transform:uppercase; margin-bottom:4px;">Faza 2</div>
+          <div style="font-weight:800; font-size:14px; color:#fff; margin-bottom:4px;">Pety + Azja</div>
+          <div style="font-size:12px; color:var(--text-dim);">Jajka, pety, fuzja, drugi kontynent</div>
+          <div style="font-family:'Space Mono',monospace; font-size:10px; color:var(--text-dim); margin-top:6px;">Tydzień 4–6</div>
+        </div>
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px; opacity:0.6;">
+          <div style="font-family:'Space Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--accent3); text-transform:uppercase; margin-bottom:4px;">Faza 3</div>
+          <div style="font-weight:800; font-size:14px; color:#fff; margin-bottom:4px;">Świat + Kasa</div>
+          <div style="font-size:12px; color:var(--text-dim);">Wszystkie kontynenty, monetyzacja, daily</div>
+          <div style="font-family:'Space Mono',monospace; font-size:10px; color:var(--text-dim); margin-top:6px;">Tydzień 7–10</div>
+        </div>
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px; opacity:0.6;">
+          <div style="font-family:'Space Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--accent4); text-transform:uppercase; margin-bottom:4px;">Faza 4</div>
+          <div style="font-weight:800; font-size:14px; color:#fff; margin-bottom:4px;">Polish + Launch</div>
+          <div style="font-size:12px; color:var(--text-dim);">Efekty, dźwięki, testy, premiera</div>
+          <div style="font-family:'Space Mono',monospace; font-size:10px; color:var(--text-dim); margin-top:6px;">Tydzień 11–12</div>
+        </div>
+      </div>
+
+      <h3 style="font-weight:800; font-size:16px; color:#fff; margin-bottom:12px;">Główna pętla gry</h3>
+      <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:24px; text-align:center; font-size:14px; line-height:2.2;">
+        <strong style="color:var(--accent4);">① Niszcz brainroty</strong> na kontynencie →
+        <strong style="color:var(--accent);">② Zbieraj zasoby + jajka</strong> →
+        <strong style="color:var(--accent2);">③ Otwieraj jajka → pety</strong> →
+        <strong style="color:var(--accent3);">④ Rozbuduj bazę</strong> →
+        <strong style="color:var(--accent5);">⑤ Nowy kontynent</strong> →
+        <strong style="color:var(--text-dim);">↻ Powtórz</strong>
+      </div>
+    </div>
+
+    <!-- TASKS -->
+    <div class="section" id="tasks">
+      <div class="page-header">
+        <h2>Zadania</h2>
+        <p>Lista rzeczy do zrobienia — klikaj checkboxy żeby odznaczać postęp</p>
+      </div>
+
+      <div class="task-section">
+        <div class="task-section-title">
+          <span class="phase-dot" style="background:var(--accent);"></span>
+          Faza 1 — Rdzeń (Tydzień 1–3)
+        </div>
+        <ul class="task-list" id="phase1-tasks">
+          <li class="task-item"><span class="task-check" onclick="toggleTask(this)">✓</span><span class="task-text">Postawić projekt w Roblox Studio</span><span class="task-priority priority-high">MUST</span></li>
+          <li class="task-item"><span class="task-check" onclick="toggleTask(this)">✓</span><span class="task-text">Wstawić assety mapy Afryki</span><span class="task-priority priority-high">MUST</span></li>
+          <li class="task-item"><span class="task-check" onclick="toggleTask(this)">✓</span><span class="task-text">Stworzyć modele brainrotów (Tier 1)</span><span class="task-priority priority-high">MUST</span></li>
+          <li class="task-item"><span class="task-check" onclick="toggleTask(this)">✓</span><span class="task-text">System klikania — uderzenie + obrażenia</span><span class="task-priority priority-high">MUST</span></li>
+          <li class="task-item"><span class="task-check" onclick="toggleTask(this)">✓</span><span class="task-text">Floating "+1" tekst po uderzeniu</span><span class="task-priority priority-mid">NICE</span></li>
+          <li class="task-item"><span class="task-check" onclick="toggleTask(this)">✓</span><span class="task-text">System siły gracza (leaderstats)</span><span class="task-priority priority-high">MUST</span></li>
+          <li class="task-item"><span class="task-check" onclick="toggleTask(this)">✓</span><span class="task-text">System zasobów z brainrotów</span><span class="task-priority priority-high">MUST</span></li>
+          <li class="task-item"><span class="task-check" onclick="toggleTask(this)">✓</span><span class="task-text">Baza lvl 1-3 — modele + upgrade</span><span class="task-priority priority-high">MUST</span></li>
+          <li class="task-item"><span class="task-check" onclick="toggleTask(this)">✓</span><span class="task-text">DataStore — zapis progresu gracza</span><span class="task-priority priority-high">MUST</span></li>
+          <li class="task-item"><span class="task-check" onclick="toggleTask(this)">✓</span><span class="task-text">Respawn brainrotów co 5-15s</span><span class="task-priority priority-mid">NICE</span></li>
+        </ul>
+      </div>
+
+      <div class="task-section">
+        <div class="task-section-title">
+          <span class="phase-dot" style="background:var(--accent2);"></span>
+          Faza 2 — Pety + Azja (Tydzień 4–6)
+        </div>
+        <ul class="task-list">
+          <li class="task-item"><span class="task-check" onclick="toggleTask(this)">✓</span><span class="task-text">System dropów jajek z brainrotów</span><span class="task-priority priority-high">MUST</span></li>
+          <li class="task-item"><span class="task-check" onclick="toggleTask(this)">✓</span><span class="task-text">Losowanie petów z wagami rzadkości (server-side)</span><span class="task-priority priority-high">MUST</span></li>
+          <li class="task-item"><span class="task-check" onclick="toggleTask(this)">✓</span><span class="task-text">GUI ekwipunek petów (3 sloty)</span><span class="task-priority priority-high">MUST</span></li>
+          <li class="task-item"><span class="task-check" onclick="toggleTask(this)">✓</span><span class="task-text">Mnożnik siły od petów</span><span class="task-priority priority-high">MUST</span></li>
+          <li class="task-item"><span class="task-check" onclick="toggleTask(this)">✓</span><span class="task-text">Animacja otwarcia jajka</span><span class="task-priority priority-mid">NICE</span></li>
+          <li class="task-item"><span class="task-check" onclick="toggleTask(this)">✓</span><span class="task-text">System fuzji (3 → 1 wyższy)</span><span class="task-priority priority-mid">NICE</span></li>
+          <li class="task-item"><span class="task-check" onclick="toggleTask(this)">✓</span><span class="task-text">Mapa Azji — assety + brainroty Tier 2</span><span class="task-priority priority-high">MUST</span></li>
+          <li class="task-item"><span class="task-check" onclick="toggleTask(this)">✓</span><span class="task-text">Teleport między kontynentami</span><span class="task-priority priority-high">MUST</span></li>
+          <li class="task-item"><span class="task-check" onclick="toggleTask(this)">✓</span><span class="task-text">GUI mapa świata z progresją</span><span class="task-priority priority-mid">NICE</span></li>
+        </ul>
+      </div>
+
+      <div class="task-section">
+        <div class="task-section-title">
+          <span class="phase-dot" style="background:var(--accent3);"></span>
+          Faza 3 — Świat + Kasa (Tydzień 7–10)
+        </div>
+        <ul class="task-list">
+          <li class="task-item"><span class="task-check" onclick="toggleTask(this)">✓</span><span class="task-text">Europa, Australia, Bliski Wschód — mapy + brainroty</span><span class="task-priority priority-high">MUST</span></li>
+          <li class="task-item"><span class="task-check" onclick="toggleTask(this)">✓</span><span class="task-text">Ameryka Pd. i Pn. — mapy + brainroty</span><span class="task-priority priority-high">MUST</span></li>
+          <li class="task-item"><span class="task-check" onclick="toggleTask(this)">✓</span><span class="task-text">Game Passy (VIP, Auto-Klik, ×2 Siła, ×2 Zasoby, +3 Sloty)</span><span class="task-priority priority-high">MUST</span></li>
+          <li class="task-item"><span class="task-check" onclick="toggleTask(this)">✓</span><span class="task-text">Dev Products (Lucky Spin, Super Spin, Instant Base, Boost)</span><span class="task-priority priority-high">MUST</span></li>
+          <li class="task-item"><span class="task-check" onclick="toggleTask(this)">✓</span><span class="task-text">GUI sklep</span><span class="task-priority priority-high">MUST</span></li>
+          <li class="task-item"><span class="task-check" onclick="toggleTask(this)">✓</span><span class="task-text">Daily Rewards system (7-dniowa seria)</span><span class="task-priority priority-mid">NICE</span></li>
+          <li class="task-item"><span class="task-check" onclick="toggleTask(this)">✓</span><span class="task-text">Ranking globalny + per kontynent</span><span class="task-priority priority-mid">NICE</span></li>
+          <li class="task-item"><span class="task-check" onclick="toggleTask(this)">✓</span><span class="task-text">System kodów promocyjnych</span><span class="task-priority priority-low">BONUS</span></li>
+          <li class="task-item"><span class="task-check" onclick="toggleTask(this)">✓</span><span class="task-text">Trading petów między graczami</span><span class="task-priority priority-low">BONUS</span></li>
+          <li class="task-item"><span class="task-check" onclick="toggleTask(this)">✓</span><span class="task-text">System Rebirth</span><span class="task-priority priority-mid">NICE</span></li>
+        </ul>
+      </div>
+
+      <div class="task-section">
+        <div class="task-section-title">
+          <span class="phase-dot" style="background:var(--accent4);"></span>
+          Faza 4 — Polish + Launch (Tydzień 11–12)
+        </div>
+        <ul class="task-list">
+          <li class="task-item"><span class="task-check" onclick="toggleTask(this)">✓</span><span class="task-text">Efekty cząsteczkowe (niszczenie, otwarcie jajka, rebirth)</span><span class="task-priority priority-mid">NICE</span></li>
+          <li class="task-item"><span class="task-check" onclick="toggleTask(this)">✓</span><span class="task-text">Dźwięki i muzyka</span><span class="task-priority priority-mid">NICE</span></li>
+          <li class="task-item"><span class="task-check" onclick="toggleTask(this)">✓</span><span class="task-text">Miniaturka gry + ikona</span><span class="task-priority priority-high">MUST</span></li>
+          <li class="task-item"><span class="task-check" onclick="toggleTask(this)">✓</span><span class="task-text">Opis gry na Roblox</span><span class="task-priority priority-high">MUST</span></li>
+          <li class="task-item"><span class="task-check" onclick="toggleTask(this)">✓</span><span class="task-text">Testy z graczami + poprawki</span><span class="task-priority priority-high">MUST</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- NOTES -->
+    <div class="section" id="notes">
+      <div class="page-header">
+        <h2>Notatki</h2>
+        <p>Miejsce na pomysły, uwagi i rzeczy do zapamiętania</p>
+      </div>
+      <textarea class="notes-area" placeholder="Pisz tu swoje notatki, pomysły, linki do assetów...
+
+Przykład:
+- Link do assetów mapy: ...
+- Pomysł na nowego brainrota: ...
+- Bug do naprawienia: ..."></textarea>
+    </div>
+
+    <!-- WORLD -->
+    <div class="section" id="world">
+      <div class="page-header">
+        <h2>Mapa Świata</h2>
+        <p>Kontynenty, progresja i brainroty per region</p>
+      </div>
+
+      <div class="continent-progress">
+        <div class="cont-row">
+          <div class="cont-connector"><span class="cont-dot t1"></span><span class="cont-line t1"></span></div>
+          <div class="cont-card">
+            <div class="cont-card-header">
+              <div class="cont-card-title"><span>🌍</span><strong>Afryka — Sawanna Brainrotów</strong></div>
+              <span class="cont-badge t1">Tier 1 · Spawn</span>
+            </div>
+            <div class="cont-meta"><span>HP: 5–30</span><span>Zasoby: ×1</span><span>Wymagania: brak</span></div>
+            <div class="cont-desc">Punkt startowy. Otwarta sawanna, słabe brainroty. Tu gracz stawia pierwszą bazę.</div>
+            <div class="tags">
+              <span class="tag">Baby Skibidi</span><span class="tag">Mini Sigma</span><span class="tag">Savanna Gronk</span><span class="tag">Safari Toilet</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="cont-row">
+          <div class="cont-connector"><span class="cont-dot t2"></span><span class="cont-line t2"></span></div>
+          <div class="cont-card">
+            <div class="cont-card-header">
+              <div class="cont-card-title"><span>🌏</span><strong>Azja — Neonowa Metropolia</strong></div>
+              <span class="cont-badge t2">Tier 2 · Baza lvl 3</span>
+            </div>
+            <div class="cont-meta"><span>HP: 50–200</span><span>Zasoby: ×2</span><span>Wymagania: Baza lvl 3</span></div>
+            <div class="cont-desc">Neonowe miasto. Szybsze brainroty, anime i K-Pop motyw. Lepsze dropy.</div>
+            <div class="tags">
+              <span class="tag">Anime Skibidi</span><span class="tag">Kawaii Rizz</span><span class="tag">Neon Ohio Cat</span><span class="tag">Samurai Toilet</span><span class="tag">K-Pop Brainrot</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="branch-label">↓ Rozgałęzienie — wybierz ścieżkę (Baza lvl 5)</div>
+      <div class="branch-split">
+        <div class="cont-card">
+          <div class="cont-card-header">
+            <div class="cont-card-title"><span>🏰</span><strong>Europa</strong></div>
+            <span class="cont-badge t3">Tier 3A</span>
+          </div>
+          <div class="cont-meta"><span>HP: 200–800</span><span>×3</span></div>
+          <div class="cont-desc">Zamki, bruk, katedry. Włoskie brainroty!</div>
+          <div class="tags">
+            <span class="tag">Bombardiro</span><span class="tag">Tralalero</span><span class="tag">Lirili</span><span class="tag">Tung Tung</span>
+          </div>
+        </div>
+        <div class="cont-card">
+          <div class="cont-card-header">
+            <div class="cont-card-title"><span>🦘</span><strong>Australia</strong></div>
+            <span class="cont-badge t3">Tier 3B</span>
+          </div>
+          <div class="cont-meta"><span>HP: 200–800</span><span>×3</span></div>
+          <div class="cont-desc">Outback, kaniony, rafa. Egzotyczne brainroty.</div>
+          <div class="tags">
+            <span class="tag">Kangaroo Sigma</span><span class="tag">Outback Toilet</span><span class="tag">Coral Rizz</span><span class="tag">Koala</span>
+          </div>
+        </div>
+        <div class="cont-card">
+          <div class="cont-card-header">
+            <div class="cont-card-title"><span>🕌</span><strong>Bliski Wschód</strong></div>
+            <span class="cont-badge t3">Tier 3C</span>
+          </div>
+          <div class="cont-meta"><span>HP: 200–800</span><span>×3</span></div>
+          <div class="cont-desc">Pałace, bazary, wydmy. Złote brainroty.</div>
+          <div class="tags">
+            <span class="tag">Sultan Skibidi</span><span class="tag">Desert Rizz</span><span class="tag">Golden Gronk</span><span class="tag">Dune Toilet</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="continent-progress" style="margin-top:8px;">
+        <div class="cont-row">
+          <div class="cont-connector"><span class="cont-dot t4"></span><span class="cont-line t4"></span></div>
+          <div class="cont-card">
+            <div class="cont-card-header">
+              <div class="cont-card-title"><span>🌎</span><strong>Ameryka Południowa — Dżungla Chaosu</strong></div>
+              <span class="cont-badge t4">Tier 4 · Baza lvl 7</span>
+            </div>
+            <div class="cont-meta"><span>HP: 1K–5K</span><span>Zasoby: ×5</span></div>
+            <div class="cont-desc">Tropikalna dżungla, ruiny, wodospady. Brainroty z zasadzek.</div>
+            <div class="tags">
+              <span class="tag">Jungle Bombardiro</span><span class="tag">Piranha Sigma</span><span class="tag">Aztec Toilet</span><span class="tag">Samba Rizz</span><span class="tag">Capybara Brainrot</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="cont-row">
+          <div class="cont-connector"><span class="cont-dot t5"></span></div>
+          <div class="cont-card">
+            <div class="cont-card-header">
+              <div class="cont-card-title"><span>🗽</span><strong>Ameryka Północna — Endgame</strong></div>
+              <span class="cont-badge t5">Tier 5 · Baza lvl 10</span>
+            </div>
+            <div class="cont-meta"><span>HP: 10K–100K</span><span>Zasoby: ×10</span></div>
+            <div class="cont-desc">Metropolia. Najsilniejsze brainroty, bossowie, Mythic jajka. Endgame.</div>
+            <div class="tags">
+              <span class="tag">Mega Skibidi Titan</span><span class="tag">Supreme Ohio Boss</span><span class="tag">Galactic Sigma</span><span class="tag">??? Mythic ???</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BASE -->
+    <div class="section" id="base">
+      <div class="page-header">
+        <h2>System Bazy</h2>
+        <p>Stalowa baza rosnąca z graczem — każdy poziom daje bonusy i odblokuje kontynenty</p>
+      </div>
+      <div class="base-grid">
+        <div class="base-card"><div class="lvl">1</div><div class="name">Buda</div><div class="desc">Blaszana chatka. Respawn.</div><div class="unlock">START</div></div>
+        <div class="base-card"><div class="lvl">2</div><div class="name">Szopa</div><div class="desc">+10% siły. Skrzynia.</div><div class="unlock">100 zasobów</div></div>
+        <div class="base-card"><div class="lvl">3</div><div class="name">Warsztat</div><div class="desc">+25% siły. Fuzja petów.</div><div class="unlock">→ AZJA</div></div>
+        <div class="base-card"><div class="lvl">4</div><div class="name">Hangar</div><div class="desc">+35% siły. 4 sloty pet.</div><div class="unlock">500 zasobów</div></div>
+        <div class="base-card"><div class="lvl">5</div><div class="name">Fabryka</div><div class="desc">+50% siły. Auto-collect.</div><div class="unlock">→ TIER 3</div></div>
+        <div class="base-card"><div class="lvl">6</div><div class="name">Kompleks</div><div class="desc">+75% siły. Trading.</div><div class="unlock">2K zasobów</div></div>
+        <div class="base-card"><div class="lvl">7</div><div class="name">Forteca</div><div class="desc">+100% siły. 5 slotów.</div><div class="unlock">→ AM. PD.</div></div>
+        <div class="base-card"><div class="lvl">8</div><div class="name">Twierdza</div><div class="desc">+130% siły. Aura bazy.</div><div class="unlock">8K zasobów</div></div>
+        <div class="base-card"><div class="lvl">9</div><div class="name">Bastion</div><div class="desc">+170% siły. Efekty.</div><div class="unlock">20K zasobów</div></div>
+        <div class="base-card"><div class="lvl">10</div><div class="name">Cytadela</div><div class="desc">+200% siły. 6 slotów. Aura.</div><div class="unlock">→ AM. PN.</div></div>
+      </div>
+    </div>
+
+    <!-- BRAINROTS & PETS -->
+    <div class="section" id="brainrots">
+      <div class="page-header">
+        <h2>Brainroty & Pety</h2>
+        <p>System walki, dropów i kolekcjonowania</p>
+      </div>
+
+      <h3 style="font-weight:800; font-size:15px; color:#fff; margin-bottom:12px;">Rzadkości petów</h3>
+      <div class="rarity-grid">
+        <div class="rarity-card"><div class="rarity-icon">⬜</div><div class="rarity-name">Common</div><div class="rarity-chance">60% szans</div><div class="rarity-mult">×1.5 siły</div></div>
+        <div class="rarity-card"><div class="rarity-icon">🟦</div><div class="rarity-name">Rare</div><div class="rarity-chance">25% szans</div><div class="rarity-mult">×3 siły</div></div>
+        <div class="rarity-card"><div class="rarity-icon">🟪</div><div class="rarity-name">Epic</div><div class="rarity-chance">12% szans</div><div class="rarity-mult">×8 siły</div></div>
+        <div class="rarity-card"><div class="rarity-icon">🟨</div><div class="rarity-name">Legendary</div><div class="rarity-chance">2.5% szans</div><div class="rarity-mult">×25 siły</div></div>
+        <div class="rarity-card"><div class="rarity-icon">🌈</div><div class="rarity-name">Mythic</div><div class="rarity-chance">0.5% szans</div><div class="rarity-mult">×100 siły</div></div>
+      </div>
+
+      <h3 style="font-weight:800; font-size:15px; color:#fff; margin:24px 0 12px;">Mechaniki</h3>
+      <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap:10px;">
+        <div class="ret-card"><div class="icon">👊</div><h4>Walka</h4><p>Klik = uderzenie. DMG = siła × pety. Brainrot ginie → loot + respawn 5-15s.</p></div>
+        <div class="ret-card"><div class="icon">🥚</div><h4>Jajka</h4><p>10-30% drop chance. Lepsze z trudniejszych kontynentów. Darmowe co 15 min, płatne instant.</p></div>
+        <div class="ret-card"><div class="icon">🔄</div><h4>Fuzja</h4><p>3 identyczne → 1 wyższy tier. Od bazy lvl 3. Mythic fuzja = Shiny variant.</p></div>
+        <div class="ret-card"><div class="icon">💎</div><h4>Sloty</h4><p>3 aktywne pety (base). +3 za Game Pass (199 R$). Baza lvl 7 = 5 slotów.</p></div>
+      </div>
+    </div>
+
+    <!-- MONEY -->
+    <div class="section" id="money">
+      <div class="page-header">
+        <h2>Monetyzacja</h2>
+        <p>Game Passy i Dev Products — żadnych hard paywalli, same boosty i QoL</p>
+      </div>
+
+      <table class="money-table">
+        <thead><tr><th>Produkt</th><th>Typ</th><th>Cena</th><th>Opis</th></tr></thead>
+        <tbody>
+          <tr><td><strong>VIP Travel Pass</strong></td><td><span class="gp-tag">GP</span></td><td><span class="price">49 R$</span></td><td>Swobodne podróżowanie między kontynentami</td></tr>
+          <tr><td><strong>Auto-Klik</strong></td><td><span class="gp-tag">GP</span></td><td><span class="price">99 R$</span></td><td>Automatyczne niszczenie brainrotów</td></tr>
+          <tr><td><strong>×2 Siła</strong></td><td><span class="gp-tag">GP</span></td><td><span class="price">149 R$</span></td><td>Podwójny przyrost siły</td></tr>
+          <tr><td><strong>×2 Zasoby</strong></td><td><span class="gp-tag">GP</span></td><td><span class="price">149 R$</span></td><td>Podwójne zasoby z brainrotów</td></tr>
+          <tr><td><strong>+3 Sloty Petów</strong></td><td><span class="gp-tag">GP</span></td><td><span class="price">199 R$</span></td><td>6 aktywnych petów zamiast 3</td></tr>
+          <tr><td><strong>Lucky Spin</strong></td><td><span class="dp-tag">DP</span></td><td><span class="price">25 R$</span></td><td>Natychmiastowe otwarcie jajka</td></tr>
+          <tr><td><strong>Super Spin</strong></td><td><span class="dp-tag">DP</span></td><td><span class="price">75 R$</span></td><td>×3 szansa na Epic+</td></tr>
+          <tr><td><strong>Instant Base Up</strong></td><td><span class="dp-tag">DP</span></td><td><span class="price">99 R$</span></td><td>Natychmiastowy upgrade bazy</td></tr>
+          <tr><td><strong>Continent Boost</strong></td><td><span class="dp-tag">DP</span></td><td><span class="price">35 R$</span></td><td>×3 do wszystkiego przez 1h</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- RETENTION -->
+    <div class="section" id="retention">
+      <div class="page-header">
+        <h2>Retencja</h2>
+        <p>Mechaniki utrzymujące graczy — powody do codziennego wracania</p>
+      </div>
+      <div class="ret-grid">
+        <div class="ret-card"><div class="icon">📅</div><h4>Daily Rewards</h4><p>7-dniowa seria. Dzień 7 = rzadkie jajko. Reset przy opuszczeniu dnia. Codzienny nawyk.</p></div>
+        <div class="ret-card"><div class="icon">🏆</div><h4>Rankingi</h4><p>Globalny + per kontynent. Korony, aury. Top 3 = bonus do dropów.</p></div>
+        <div class="ret-card"><div class="icon">🎪</div><h4>Eventy</h4><p>Co 2-4 tyg. Limitowany kontynent (Antarktyda, Atlantyda). Unikalne pety, nigdy nie wrócą.</p></div>
+        <div class="ret-card"><div class="icon">🔑</div><h4>Kody</h4><p>YouTube / Discord / TikTok. Drobne nagrody. Organiczny ruch.</p></div>
+        <div class="ret-card"><div class="icon">🤝</div><h4>Trading</h4><p>Wymiana petów. Żywa ekonomia. Pety z różnych kontynentów = różna wartość.</p></div>
+        <div class="ret-card"><div class="icon">♻️</div><h4>Rebirth</h4><p>Reset + trwały ×2. Nowa podróż, prestiżowe efekty. Nieskończony cel.</p></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// Navigation
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.currentTarget.classList.add('active');
+  updateTaskCounter();
+}
+
+// Task toggling
+function toggleTask(el) {
+  el.classList.toggle('done');
+  const text = el.nextElementSibling;
+  text.classList.toggle('done-text');
+  updateTaskCounter();
+}
+
+function updateTaskCounter() {
+  const total = document.querySelectorAll('.task-check').length;
+  const done = document.querySelectorAll('.task-check.done').length;
+  const counter = document.getElementById('task-counter');
+  if (counter) counter.textContent = done + ' / ' + total;
+}
+
+updateTaskCounter();
+</script>
+</body>
+</html>
